@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your Carbon Footprint Results">
+    <title>Your Carbon Footprint Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-leaf">&#8203;</i>
+                <h1>Your Carbon Footprint Results</h1>
+            </div>
+            <a href="/" class="btn-back">
+                <i class="fas fa-arrow-left">&#8203;</i> Back to Calculator
+            </a>
+        </div>
+
+        <div class="results-content">
+            <!-- Main Result Card -->
+            <div class="result-card">
+                <div class="result-header">
+                    <h2><i class="fas fa-chart-line">&#8203;</i> Your Carbon Emission Estimate</h2>
+                    <div class="result-badge" id="result-badge-main" data-color="{{ result.color }}">
+                        {{ result.rating }}
+                    </div>
+                </div>
+                
+                <div class="result-main">
+                    <div class="emission-value">
+                        <span class="value" id="prediction-value">{{ result.prediction|int }}</span>
+                        <span class="unit">kg CO<sub>2</sub>/year</span>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill-main" data-width="{{ result.percentile }}"></div>
+                        </div>
+                        <div class="progress-labels">
+                            <span>Low</span>
+                            <span>Average</span>
+                            <span>High</span>
+                        </div>
+                    </div>
+                    
+                    <div class="percentile-info">
+                        <p>
+                            <i class="fas fa-chart-bar">&#8203;</i>
+                            Your emissions are higher than <strong>{{ result.percentile }}%</strong> of similar households
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Factors -->
+            <div class="factors-card">
+                <h3><i class="fas fa-key">&#8203;</i> Key Contributing Factors</h3>
+                
+                <div class="factors-grid">
+                    <div class="factor-item">
+                        <div class="factor-icon" style="background-color: #4CAF50;">
+                            <i class="fas fa-utensils">&#8203;</i>
+                        </div>
+                        <div class="factor-info">
+                            <h4>Diet</h4>
+                            <p>{{ result.input_summary.Diet|title }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="factor-item">
+                        <div class="factor-icon" style="background-color: #2196F3;">
+                            <i class="fas fa-car">&#8203;</i>
+                        </div>
+                        <div class="factor-info">
+                            <h4>Transportation</h4>
+                            <p>{{ result.input_summary.Transport|title }}</p>
+                            {% if result.input_summary.Vehicle_Distance and result.input_summary.Vehicle_Distance != '0' %}
+                            <p class="factor-detail">{{ result.input_summary.Vehicle_Distance }} km/month</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="factor-item">
+                        <div class="factor-icon" style="background-color: #FF9800;">
+                            <i class="fas fa-plane">&#8203;</i>
+                        </div>
+                        <div class="factor-info">
+                            <h4>Air Travel</h4>
+                            <p>{{ result.input_summary.Air_Travel|title }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="factor-item">
+                        <div class="factor-icon" style="background-color: #9C27B0;">
+                            <i class="fas fa-bolt">&#8203;</i>
+                        </div>
+                        <div class="factor-info">
+                            <h4>Energy Source</h4>
+                            <p>{{ result.input_summary.Energy_Source|title }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="recommendations-card">
+                <h3><i class="fas fa-lightbulb">&#8203;</i> Recommendations to Reduce Your Footprint</h3>
+                
+                <div class="recommendations-grid">
+                    <div class="recommendation">
+                        <div class="rec-icon">
+                            <i class="fas fa-bus">&#8203;</i>
+                        </div>
+                        <div class="rec-content">
+                            <h4>Transportation</h4>
+                            <p>Consider using public transport, carpooling, or cycling for daily commutes.</p>
+                            <span class="rec-impact">Potential reduction: ~500 kg CO<sub>2</sub>/year</span>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation">
+                        <div class="rec-icon">
+                            <i class="fas fa-seedling">&#8203;</i>
+                        </div>
+                        <div class="rec-content">
+                            <h4>Diet</h4>
+                            <p>Incorporate more plant-based meals into your weekly diet.</p>
+                            <span class="rec-impact">Potential reduction: ~300 kg CO<sub>2</sub>/year</span>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation">
+                        <div class="rec-icon">
+                            <i class="fas fa-home">&#8203;</i>
+                        </div>
+                        <div class="rec-content">
+                            <h4>Home Energy</h4>
+                            <p>Switch to energy-efficient appliances and consider renewable energy sources.</p>
+                            <span class="rec-impact">Potential reduction: ~400 kg CO<sub>2</sub>/year</span>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation">
+                        <div class="rec-icon">
+                            <i class="fas fa-recycle">&#8203;</i>
+                        </div>
+                        <div class="rec-content">
+                            <h4>Waste Reduction</h4>
+                            <p>Improve recycling habits and reduce single-use plastic consumption.</p>
+                            <span class="rec-impact">Potential reduction: ~150 kg CO<sub>2</sub>/year</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Chart -->
+            <div class="comparison-card">
+                <h3><i class="fas fa-balance-scale">&#8203;</i> How You Compare</h3>
+                
+                <div class="comparison-bars">
+                    <div class="comparison-item">
+                        <div class="comparison-label">Your Footprint</div>
+                        <div class="comparison-bar">
+                            <div class="bar-fill" id="bar-your-footprint" data-width="{{ result.percentile }}">
+                                <span>{{ result.prediction|int }} kg</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-item">
+                        <div class="comparison-label">National Average</div>
+                        <div class="comparison-bar">
+                            <div class="bar-fill" id="bar-national-average" data-width="50">
+                                <span>2,500 kg</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-item">
+                        <div class="comparison-label">Climate Goal</div>
+                        <div class="comparison-bar">
+                            <div class="bar-fill" id="bar-climate-goal" data-width="20">
+                                <span>1,000 kg</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-redo">&#8203;</i> Calculate Again
+                </a>
+                <button type="button" class="btn btn-secondary" onclick="window.print()">
+                    <i class="fas fa-print">&#8203;</i> Print Report
+                </button>
+                <button type="button" class="btn btn-success" onclick="shareResults()">
+                    <i class="fas fa-share-alt">&#8203;</i> Share Results
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Carbon Footprint Calculator &copy; 2024 | Results are estimates based on machine learning models</p>
+            <p class="disclaimer">
+                <i class="fas fa-info-circle">&#8203;</i> 
+                These estimates are for educational purposes. For precise calculations, consult environmental professionals.
+            </p>
+        </div>
+    </div>
+
+    <!-- Hidden data container -->
+    <div id="prediction-data" data-value="{{ result.prediction|int }}" data-color="{{ result.color }}" data-percentile="{{ result.percentile }}" style="display: none;"></div>
+
+    <script type="text/javascript">
+        // Get prediction data from hidden element
+        var predictionElement = document.getElementById('prediction-data');
+        var predictionValue = predictionElement ? parseInt(predictionElement.getAttribute('data-value')) : 0;
+        var resultColor = predictionElement ? predictionElement.getAttribute('data-color') : '#FF9800';
+        var percentileValue = predictionElement ? parseInt(predictionElement.getAttribute('data-percentile')) : 50;
+        
+        // Function to share results
+        function shareResults() {
+            var shareText = 'My estimated carbon footprint is ' + predictionValue + ' kg CO2/year. Check yours at: ' + window.location.href;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Carbon Footprint Results',
+                    text: 'My estimated carbon footprint is ' + predictionValue + ' kg CO2/year.',
+                    url: window.location.href
+                }).catch(function(err) {
+                    console.log('Error sharing:', err);
+                    fallbackShare(shareText);
+                });
+            } else {
+                fallbackShare(shareText);
+            }
+        }
+        
+        // Fallback share function
+        function fallbackShare(shareText) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(shareText).then(function() {
+                    alert('Results copied to clipboard!');
+                }).catch(function(err) {
+                    prompt('Copy this text to share:', shareText);
+                });
+            } else {
+                prompt('Copy this text to share:', shareText);
+            }
+        }
+        
+        // Animate progress bars on load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set result badge color
+            var resultBadge = document.getElementById('result-badge-main');
+            if (resultBadge && resultColor) {
+                resultBadge.style.backgroundColor = resultColor;
+            }
+            
+            // Set progress fill color and width
+            var progressFill = document.getElementById('progress-fill-main');
+            if (progressFill && resultColor) {
+                progressFill.style.backgroundColor = resultColor;
+                setTimeout(function() {
+                    progressFill.style.width = percentileValue + '%';
+                }, 300);
+            }
+            
+            // Set comparison bar colors and animate
+            var comparisonBars = document.querySelectorAll('.bar-fill');
+            comparisonBars.forEach(function(bar) {
+                var width = bar.getAttribute('data-width') + '%';
+                
+                // Set color for your footprint bar
+                if (bar.id === 'bar-your-footprint' && resultColor) {
+                    bar.style.backgroundColor = resultColor;
+                }
+                
+                // Set national average bar color
+                if (bar.id === 'bar-national-average') {
+                    bar.style.backgroundColor = '#666666';
+                }
+                
+                // Set climate goal bar color
+                if (bar.id === 'bar-climate-goal') {
+                    bar.style.backgroundColor = '#4CAF50';
+                }
+                
+                // Animate width
+                bar.style.width = '0%';
+                setTimeout(function() {
+                    bar.style.width = width;
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>

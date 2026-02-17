@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Emission Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-leaf"></i>
+                <h1>Carbon Footprint Calculator</h1>
+            </div>
+            <p class="subtitle">Calculate your personal carbon emissions based on lifestyle choices</p>
+        </header>
+
+        <main class="main-content">
+            <div class="form-container">
+                <form id="carbonForm" method="POST" action="/predict">
+                    
+                    <!-- Personal Information Section -->
+                    <div class="form-section">
+                        <h2><i class="fas fa-user"></i> Personal Information</h2>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="Body Type">
+                                    <i class="fas fa-weight"></i> Body Type
+                                </label>
+                                <select id="Body Type" name="Body Type" required>
+                                    <option value="">Select Body Type</option>
+                                    {% for option in category_options['Body Type'] %}
+                                    <option value="{{ option }}">{{ option|title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="Sex">
+                                    <i class="fas fa-venus-mars"></i> Gender
+                                </label>
+                                <select id="Sex" name="Sex" required>
+                                    <option value="">Select Gender</option>
+                                    {% for option in category_options['Sex'] %}
+                                    <option value="{{ option }}">{{ option|title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Diet & Lifestyle Section -->
+                    <div class="form-section">
+                        <h2><i class="fas fa-utensils"></i> Diet & Lifestyle</h2>
+                        
+                        <div class="form-group">
+                            <label for="Diet">
+                                <i class="fas fa-seedling"></i> Diet Type
+                            </label>
+                            <select id="Diet" name="Diet" required>
+                                <option value="">Select Diet</option>
+                                {% for option in category_options['Diet'] %}
+                                <option value="{{ option }}">{{ option|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="Monthly Grocery Bill">
+                                    <i class="fas fa-shopping-cart"></i> Monthly Grocery Bill ($)
+                                </label>
+                                <input type="number" id="Monthly Grocery Bill" name="Monthly Grocery Bill" 
+                                       min="0" max="1000" step="10" value="200" required>
+                                <div class="slider-container">
+                                    <input type="range" id="grocerySlider" min="0" max="1000" value="200" step="10" 
+                                           class="slider" oninput="updateGroceryValue(this.value)">
+                                    <div class="slider-labels">
+                                        <span>$0</span>
+                                        <span>$500</span>
+                                        <span>$1000</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="How Many New Clothes Monthly">
+                                    <i class="fas fa-tshirt"></i> New Clothes per Month
+                                </label>
+                                <input type="number" id="How Many New Clothes Monthly" 
+                                       name="How Many New Clothes Monthly" min="0" max="50" value="5" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transportation Section -->
+                    <div class="form-section">
+                        <h2><i class="fas fa-car"></i> Transportation</h2>
+                        
+                        <div class="form-group">
+                            <label for="Transport">
+                                <i class="fas fa-bus"></i> Primary Transport
+                            </label>
+                            <select id="Transport" name="Transport" required onchange="toggleVehicleFields()">
+                                <option value="">Select Transport</option>
+                                {% for option in category_options['Transport'] %}
+                                <option value="{{ option }}">{{ option|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-row" id="vehicleFields" style="display: none;">
+                            <div class="form-group">
+                                <label for="Vehicle Type">
+                                    <i class="fas fa-gas-pump"></i> Vehicle Type
+                                </label>
+                                <select id="Vehicle Type" name="Vehicle Type">
+                                    <option value="none">Select Vehicle Type</option>
+                                    {% for option in category_options['Vehicle Type'] %}
+                                    <option value="{{ option }}">{{ option|title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="Vehicle Monthly Distance Km">
+                                    <i class="fas fa-road"></i> Monthly Distance (km)
+                                </label>
+                                <input type="number" id="Vehicle Monthly Distance Km" 
+                                       name="Vehicle Monthly Distance Km" min="0" max="10000" value="500">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="Frequency of Traveling by Air">
+                                <i class="fas fa-plane"></i> Air Travel Frequency
+                            </label>
+                            <select id="Frequency of Traveling by Air" name="Frequency of Traveling by Air" required>
+                                <option value="">Select Frequency</option>
+                                {% for option in category_options['Frequency of Traveling by Air'] %}
+                                <option value="{{ option }}">{{ option|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Energy & Home Section -->
+                    <div class="form-section">
+                        <h2><i class="fas fa-home"></i> Home & Energy</h2>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="Heating Energy Source">
+                                    <i class="fas fa-fire"></i> Heating Source
+                                </label>
+                                <select id="Heating Energy Source" name="Heating Energy Source" required>
+                                    <option value="">Select Energy Source</option>
+                                    {% for option in category_options['Heating Energy Source'] %}
+                                    <option value="{{ option }}">{{ option|title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="Energy efficiency">
+                                    <i class="fas fa-bolt"></i> Energy Efficiency
+                                </label>
+                                <select id="Energy efficiency" name="Energy efficiency" required>
+                                    <option value="">Select Energy Efficiency</option>
+                                    {% for option in category_options['Energy efficiency'] %}
+                                    <option value="{{ option }}">{{ option }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="How Often Shower">
+                                    <i class="fas fa-shower"></i> Shower Frequency
+                                </label>
+                                <select id="How Often Shower" name="How Often Shower" required>
+                                    <option value="">Select Frequency</option>
+                                    {% for option in category_options['How Often Shower'] %}
+                                    <option value="{{ option }}">{{ option|title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Waste & Recycling Section -->
+                    <div class="form-section">
+                        <h2><i class="fas fa-recycle"></i> Waste & Recycling</h2>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="Waste Bag Size">
+                                    <i class="fas fa-trash"></i> Waste Bag Size
+                                </label>
+                                <select id="Waste Bag Size" name="Waste Bag Size" required>
+                                    <option value="">Select Bag Size</option>
+                                    {% for option in category_options['Waste Bag Size'] %}
+                                    <option value="{{ option }}">{{ option|title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="Waste Bag Weekly Count">
+                                    <i class="fas fa-trash-alt"></i> Bags per Week
+                                </label>
+                                <input type="number" id="Waste Bag Weekly Count" 
+                                       name="Waste Bag Weekly Count" min="0" max="20" value="3" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-recycle"></i> Recycling Materials</label>
+                            <div class="checkbox-group">
+                                {% for material in ['Paper', 'Plastic', 'Glass', 'Metal'] %}
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="Recycling" value="{{ material }}">
+                                    {{ material }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Technology & Habits Section -->
+                    <div class="form-section">
+                        <h2><i class="fas fa-laptop"></i> Technology & Habits</h2>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="How Long TV PC Daily Hour">
+                                    <i class="fas fa-tv"></i> Daily Screen Time (hours)
+                                </label>
+                                <input type="number" id="How Long TV PC Daily Hour" 
+                                       name="How Long TV PC Daily Hour" min="0" max="24" value="4" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="How Long Internet Daily Hour">
+                                    <i class="fas fa-wifi"></i> Daily Internet Use (hours)
+                                </label>
+                                <input type="number" id="How Long Internet Daily Hour" 
+                                       name="How Long Internet Daily Hour" min="0" max="24" value="6" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="Social Activity">
+                                <i class="fas fa-users"></i> Social Activity Level
+                            </label>
+                            <select id="Social Activity" name="Social Activity" required>
+                                <option value="">Select Activity Level</option>
+                                {% for option in category_options['Social Activity'] %}
+                                <option value="{{ option }}">{{ option|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Cooking Methods Section -->
+                    <div class="form-section">
+                        <h2><i class="fas fa-utensil-spoon"></i> Cooking Methods</h2>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-kitchen-set"></i> Cooking Appliances Used</label>
+                            <div class="checkbox-group">
+                                {% for method in ['Stove', 'Oven', 'Microwave', 'Grill', 'Airfryer'] %}
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="Cooking_With" value="{{ method }}">
+                                    {{ method }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="form-actions">
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i> Reset Form
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calculator"></i> Calculate Carbon Footprint
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Info Panel -->
+            <div class="info-panel">
+                <h3><i class="fas fa-info-circle"></i> About This Calculator</h3>
+                <p>This calculator uses machine learning to predict your carbon emissions based on various lifestyle factors.</p>
+                
+                <div class="info-tips">
+                    <h4><i class="fas fa-lightbulb"></i> Tips to Reduce Emissions:</h4>
+                    <ul>
+                        <li>Use public transportation or walk/bike</li>
+                        <li>Reduce air travel when possible</li>
+                        <li>Choose plant-based diet options</li>
+                        <li>Improve home energy efficiency</li>
+                        <li>Recycle and reduce waste</li>
+                    </ul>
+                </div>
+                
+                <div class="disclaimer">
+                    <p><i class="fas fa-exclamation-triangle"></i> <strong>Disclaimer:</strong> This is an estimate based on statistical models. Actual emissions may vary.</p>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <p>Carbon Footprint Calculator &copy; 2024 | Powered by Machine Learning</p>
+            <p class="footer-links">
+                <a href="#"><i class="fab fa-github"></i> GitHub</a>
+                <a href="#"><i class="fas fa-book"></i> Documentation</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+            </p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        function toggleVehicleFields() {
+            const transport = document.getElementById('Transport').value;
+            const vehicleFields = document.getElementById('vehicleFields');
+            
+            if (transport === 'private') {
+                vehicleFields.style.display = 'flex';
+            } else {
+                vehicleFields.style.display = 'none';
+            }
+        }
+        
+        function updateGroceryValue(value) {
+            document.getElementById('Monthly Grocery Bill').value = value;
+        }
+        
+        // Initialize form
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleVehicleFields();
+        });
+    </script>
+</body>
+</html>
