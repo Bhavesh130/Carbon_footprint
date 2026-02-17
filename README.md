@@ -14,5 +14,5 @@ A web application that uses machine learning to predict personal carbon emission
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/carbon-emission-predictor.git
-   cd carbon-emission-predictor
+   git clone https://github.com/Bhavesh130/Carbon_footprint.git
+   cd Carbon_footprint
