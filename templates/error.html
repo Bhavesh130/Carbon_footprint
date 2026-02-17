@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Carbon Footprint Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-exclamation-triangle">&#8203;</i>
+                <h1>Error</h1>
+            </div>
+            <a href="/" class="btn-back">
+                <i class="fas fa-arrow-left">&#8203;</i> Back to Calculator
+            </a>
+        </div>
+        
+        <div class="error-container">
+            <div class="error-card">
+                <h2><i class="fas fa-bug">&#8203;</i> An Error Occurred</h2>
+                <div class="error-message">
+                    <p><strong>{{ error }}</strong></p>
+                    {% if details %}
+                    <p class="error-details">{{ details }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="troubleshooting">
+                    <h3><i class="fas fa-wrench">&#8203;</i> Troubleshooting Steps:</h3>
+                    <ol>
+                        <li>Ensure all model files are in the same directory as app.py</li>
+                        <li>Check if model files exist: best_carbon_emission_model.pkl, scaler.pkl, label_encoders.pkl</li>
+                        <li>Verify you have the required permissions to read the files</li>
+                        <li>Try training the model again if files are missing</li>
+                    </ol>
+                </div>
+                
+                <div class="action-buttons">
+                    <a href="/debug/model" class="btn btn-info" target="_blank">
+                        <i class="fas fa-search">&#8203;</i> Check Model Status
+                    </a>
+                    <a href="/" class="btn btn-primary">
+                        <i class="fas fa-home">&#8203;</i> Return Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
